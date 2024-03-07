@@ -1,0 +1,106 @@
+﻿@page "/addgame"
+@page "/addgame/{id:int}"
+@using Models
+@using DataAccess
+@inject NavigationManager NavigationManager
+
+<PageTitle>@Header</PageTitle>
+
+<h1>Game Catalog</h1>
+<h3>@Header</h3>
+
+<div class="row">
+    <div class="col-sm-4">
+        <EditForm Model="@game" OnSubmit="HandleSubmit">
+            <div class="mb-3">
+                <label for="Name" class="form-label">Name: </label>
+                <InputText id="name" @bind-Value="game.Name" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="Genre" class="form-label">Genre: </label>
+                <InputSelect id="genre" @bind-Value="game.Genre" class="form-control">
+                    <option value="">Select genre</option>
+                    <option value="Fighting">Fighting</option>
+                    <option value="Racing">Racing</option>
+                    <option value="Roleplaying">Roleplaying</option>
+                    <option value="Sports">Sports</option>
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="Genre" class="form-label">Price: </label>
+                <InputNumber id="price" @bind-Value="game.Price" class="form-control"></InputNumber>
+            </div>
+            <div class="mb-3">
+                <label for="Genre" class="form-label">Released Date: </label>
+                <InputDate id="releaseddate" @bind-Value="game.ReleasedDate" class="form-control"></InputDate>
+            </div>
+            <button type="submit" class="btn btn-primary">@ActionButton</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    private string Header = string.Empty;
+    private string ActionButton = string.Empty;
+    private Game? game;
+
+    protected override void OnParametersSet()
+    {
+        if(Id is not null)
+        {
+
+            Game foundGame = GameClient.GetGame(Id.Value);
+            game = new()
+                {
+                    Id = foundGame.Id,
+                    Name = foundGame.Name,
+                    Genre = foundGame.Genre,
+                    Price = foundGame.Price,
+                    ReleasedDate = foundGame.ReleasedDate
+                };
+            Header = $"Edit {game.Name}";
+            ActionButton = "Update";
+        }
+        else
+        {
+            game = new()
+                {
+                    Name = string.Empty,
+                    Genre = string.Empty,
+                    Price = 0,
+                    ReleasedDate = DateTime.Now
+                };
+            Header = "Add new game";
+            ActionButton = "Save";
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        if(game.Id == 0)
+        {
+            GameClient.AddGame(game);
+
+        }
+        else
+        {
+            GameClient.UpdateGame(game);
+        }
+        NavigationManager.NavigateTo("/");
+
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void Update()
+    {
+        
+    }
+
+}

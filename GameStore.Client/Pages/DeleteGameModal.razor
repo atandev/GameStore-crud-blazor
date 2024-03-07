@@ -1,0 +1,46 @@
+﻿@using Models
+<div class="modal fade" id="deleteGame" tabindex="-1" aria-labelledby="deleteGame" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Game</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @GameName
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="@Cancel">Close</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="@Confirm">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public Game? Game { get; set; }
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    private string GameName = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        if(Game is not null)
+        {
+            GameName = $"Are you sure you want to delete {Game.Name} ?";
+        }
+    }
+
+    private void Confirm()
+    {
+        OnClose.InvokeAsync(true);
+    }
+    private void Cancel()
+    {
+        OnClose.InvokeAsync(false);
+    }
+
+
+
+}

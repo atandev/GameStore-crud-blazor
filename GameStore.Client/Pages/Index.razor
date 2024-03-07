@@ -1,0 +1,78 @@
+﻿@page "/"
+@using Models
+@using DataAccess
+@inject NavigationManager NavManager
+
+<PageTitle>Game Catalog</PageTitle>
+
+<h1>Game Catalog</h1>
+<div class="row mb-4">
+    <div class="col-sm-4">
+        <button type="button" class="btn btn-primary" @onclick="AddGame">Add Game</button>
+    </div>
+</div>
+<DeleteGameModal Game="@currentGame" OnClose="@OnDeleteModalClose">
+</DeleteGameModal>
+<table class="table table-hover table-bordered">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Genre</th>
+            <th>Price</th>
+            <th>Release Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+            @foreach (var game in games!)
+            {
+                <tr>
+                    <td>@game.Id</td>
+                    <td>@game.Name</td>
+                    <td>@game.Genre</td>
+                    <td>@game.Price</td>
+                    <td>@game.ReleasedDate.ToString("MM/dd/yyyy")</td>
+                    <td>
+                        <button type="button" class="btn btn-info" @onclick="(() => EditGame(game.Id))">
+                            <i class="oi oi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteGame" @onclick="(() => currentGame = game)">
+                            <i class="oi oi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+    </tbody>
+</table>
+@if(games.Length == 0)
+{
+    <p class="text-center">No record found...</p>
+}
+
+@code {
+    private Game[]? games;
+    private Game? currentGame;
+
+    protected override void OnInitialized()
+    {
+        games = GameClient.GetGames();
+    }
+    private void AddGame()
+    {
+        NavManager.NavigateTo("/addgame");
+    }
+    private void EditGame(int Id)
+    {
+        NavManager.NavigateTo($"/addgame/{Id}");
+    }
+    private void OnDeleteModalClose(bool accepted)
+    {
+        if (accepted)
+        {
+            GameClient.DeleteGame(currentGame!.Id);
+            games = GameClient.GetGames();
+        }
+    }
+}
